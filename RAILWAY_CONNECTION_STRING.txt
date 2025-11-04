@@ -1,0 +1,2 @@
+postgresql://postgres:J7Tg4LkQiTbz%21cS@db.gywjhlqmqucjkneucjbp.supabase.co:5432/postgres?sslmode=require&application_name=worker-listener&keepalives=1
+
