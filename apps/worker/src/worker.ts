@@ -17,26 +17,46 @@ import type { ETLRunRecord } from './types/etl.js';
  * Resolves hostname to IPv4 address and preserves original hostname in TLS SNI.
  */
 async function makeIPv4Pool(connStr: string): Promise<Pool> {
-  const u = new URL(connStr);
-  const host = u.hostname;
-  
-  // Force IPv4 resolution
-  const { address } = await dns.promises.lookup(host, { family: 4 });
-  log.info(`Resolved ${host} to IPv4: ${address}`);
-  
-  // Swap hostname for resolved IPv4, keep SSL and params intact
-  u.hostname = address;
-  
-  // Important: preserve original host in SNI for TLS
-  const ssl = { 
-    rejectUnauthorized: false, 
-    servername: host // Original hostname for TLS SNI
-  };
-  
-  return new Pool({ 
-    connectionString: u.toString(), 
+  const url = new URL(connStr);
+  const originalHost = url.hostname;
+
+  let resolvedIPv4: string | null = null;
+
+  try {
+    const { address } = await dns.promises.lookup(originalHost, { family: 4 });
+    resolvedIPv4 = address;
+    log.info(`Resolved ${originalHost} to IPv4: ${resolvedIPv4}`);
+  } catch (error) {
+    log.warn(`IPv4 DNS lookup failed for ${originalHost}, falling back to default ordering`, error);
+
+    if (typeof dns.setDefaultResultOrder === 'function') {
+      try {
+        dns.setDefaultResultOrder('ipv4first');
+        log.info('Set DNS default result order to ipv4first');
+      } catch (setOrderError) {
+        log.warn('Unable to set DNS default result order to ipv4first', setOrderError);
+      }
+    }
+  }
+
+  const ssl = {
+    rejectUnauthorized: false,
+    servername: originalHost,
+  } as const;
+
+  if (resolvedIPv4) {
+    url.hostname = resolvedIPv4;
+    return new Pool({
+      connectionString: url.toString(),
+      ssl,
+      max: 1,
+    });
+  }
+
+  return new Pool({
+    connectionString: connStr,
     ssl,
-    max: 1, // Single connection for worker
+    max: 1,
   });
 }
 
