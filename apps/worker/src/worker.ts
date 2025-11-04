@@ -13,41 +13,72 @@ const log = logger('worker');
 import type { ETLRunRecord } from './types/etl.js';
 
 /**
+ * Resolve an IPv4 address for the given host, trying environment overrides first.
+ */
+async function resolveIPv4Host(originalHost: string): Promise<string> {
+  const manualOverride = process.env.SUPABASE_DB_IPV4 || (process.env.PGHOSTADDR && process.env.PGHOSTADDR !== '0.0.0.0' ? process.env.PGHOSTADDR : undefined);
+  if (manualOverride) {
+    log.info(`Using manually configured IPv4 host: ${manualOverride}`);
+    return manualOverride;
+  }
+
+  const strategies: Array<() => Promise<string | null>> = [
+    async () => {
+      try {
+        const { address } = await dns.promises.lookup(originalHost, { family: 4 });
+        return address;
+      } catch (error) {
+        log.warn(`dns.lookup IPv4 failed for ${originalHost}`, error);
+        return null;
+      }
+    },
+    async () => {
+      try {
+        const addresses = await dns.promises.resolve4(originalHost);
+        return addresses[0] ?? null;
+      } catch (error) {
+        log.warn(`dns.resolve4 failed for ${originalHost}`, error);
+        return null;
+      }
+    },
+    async () => {
+      try {
+        const resolver = new dns.promises.Resolver();
+        resolver.setServers(['1.1.1.1', '8.8.8.8']);
+        const addresses = await resolver.resolve4(originalHost);
+        return addresses[0] ?? null;
+      } catch (error) {
+        log.warn(`Custom resolver resolve4 failed for ${originalHost}`, error);
+        return null;
+      }
+    },
+  ];
+
+  for (const strategy of strategies) {
+    const result = await strategy();
+    if (result) {
+      log.info(`Resolved ${originalHost} to IPv4: ${result}`);
+      process.env.PGHOSTADDR = result;
+      return result;
+    }
+  }
+
+  throw new Error(
+    `Unable to resolve IPv4 address for ${originalHost}. ` +
+    `Set SUPABASE_DB_IPV4 or PGHOSTADDR in Railway variables to a valid IPv4 address.`
+  );
+}
+
+/**
  * Create a PostgreSQL pool with IPv4 resolution to avoid IPv6 connectivity issues.
  * Resolves hostname to IPv4 address and preserves original hostname in TLS SNI.
  */
 async function makeIPv4Pool(connStr: string): Promise<Pool> {
   const url = new URL(connStr);
   const originalHost = url.hostname;
+  const ipv4Host = await resolveIPv4Host(originalHost);
 
-  let resolvedIPv4: string | null = null;
-
-  try {
-    const { address } = await dns.promises.lookup(originalHost, { family: 4 });
-    resolvedIPv4 = address;
-    log.info(`Resolved ${originalHost} to IPv4 via lookup: ${resolvedIPv4}`);
-  } catch (lookupError) {
-    log.warn(`IPv4 DNS lookup failed for ${originalHost}, trying resolve4 fallback`, lookupError);
-
-    try {
-      const addresses = await dns.promises.resolve4(originalHost);
-      if (addresses.length > 0) {
-        resolvedIPv4 = addresses[0];
-        log.info(`Resolved ${originalHost} to IPv4 via resolve4: ${resolvedIPv4}`);
-      }
-    } catch (resolveError) {
-      log.warn(`IPv4 resolve4 failed for ${originalHost}`, resolveError);
-    }
-  }
-
-  if (!resolvedIPv4 && typeof dns.setDefaultResultOrder === 'function') {
-    try {
-      dns.setDefaultResultOrder('ipv4first');
-      log.info('Set DNS default result order to ipv4first');
-    } catch (setOrderError) {
-      log.warn('Unable to set DNS default result order to ipv4first', setOrderError);
-    }
-  }
+  url.hostname = ipv4Host;
 
   const ssl = {
     rejectUnauthorized: false,
@@ -55,21 +86,12 @@ async function makeIPv4Pool(connStr: string): Promise<Pool> {
   } as const;
 
   const poolConfig: PoolConfig = {
-    connectionString: connStr,
+    connectionString: url.toString(),
+    host: ipv4Host,
     ssl,
     max: 1,
     connectionTimeoutMillis: 5000,
   };
-
-  if (resolvedIPv4) {
-    poolConfig.host = resolvedIPv4;
-    process.env.PGHOSTADDR = resolvedIPv4;
-    url.hostname = resolvedIPv4;
-    poolConfig.connectionString = url.toString();
-  } else {
-    process.env.PGHOSTADDR = '0.0.0.0';
-    poolConfig.host = originalHost;
-  }
 
   return new Pool(poolConfig);
 }
