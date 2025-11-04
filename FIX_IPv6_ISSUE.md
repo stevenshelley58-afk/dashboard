@@ -14,7 +14,7 @@ Supabase has moved to IPv6-only for direct database connections. Railway contain
 5. Choose **Transaction mode** (recommended for short-lived connections like Railway workers)
 6. Copy the connection string - it should look like:
    ```
-   postgresql://postgres.gywjhlqmqucjkneucjbp:[YOUR-PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres
+   postgresql://postgres.gywjhlqmqucjkneucjbp:[YOUR-PASSWORD]@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres
    ```
 
 ### Step 2: Update Railway Environment Variable
@@ -30,7 +30,7 @@ In Railway dashboard for your worker service:
 
 **Example:**
 ```
-SUPABASE_DB_URL=postgresql://postgres.gywjhlqmqucjkneucjbp:J7Tg4LkQiTbz%21cS@aws-0-us-west-1.pooler.supabase.com:6543/postgres?sslmode=require&application_name=worker-listener&keepalives=1
+SUPABASE_DB_URL=postgresql://postgres.gywjhlqmqucjkneucjbp:J7Tg4LkQiTbz%21cS@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require&application_name=worker-listener&keepalives=1
 ```
 
 ### Step 3: Redeploy
@@ -53,7 +53,7 @@ If you need direct database connections:
 ## Why This Works
 
 - **Direct connection** (`db.gywjhlqmqucjkneucjbp.supabase.co`) = IPv6 only
-- **Connection pooler** (`aws-0-us-west-1.pooler.supabase.com`) = Supports both IPv4 and IPv6
+- **Connection pooler** (`aws-1-ap-southeast-2.pooler.supabase.com`) = Supports both IPv4 and IPv6
 - Railway containers = IPv4 only
 
 Using the pooler solves the connectivity issue without code changes.
