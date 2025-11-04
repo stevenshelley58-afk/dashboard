@@ -1,8 +1,9 @@
 [build]
-builder = "nixpacks"
+builder = "railpack"
+buildCommand = "pnpm -F @dashboard/worker build"
+watchPatterns = ["/apps/worker/**"]
 
 [deploy]
-startCommand = "cd apps/worker && pnpm start"
+startCommand = "pnpm -F @dashboard/worker start"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-
