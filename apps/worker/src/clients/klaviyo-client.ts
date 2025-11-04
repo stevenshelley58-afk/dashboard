@@ -123,7 +123,7 @@ export class KlaviyoClient extends ApiClient {
     let url: string | undefined = this.buildAggregateUrl(metricId, startDate, endDate);
 
     while (url) {
-      const response = await this.http.get<KlaviyoMetricAggregate>(url, {
+      const response: KlaviyoMetricAggregate = await this.http.get<KlaviyoMetricAggregate>(url, {
         rateLimitKey: 'klaviyo',
       });
 

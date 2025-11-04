@@ -90,9 +90,32 @@ supabase functions deploy sync
 
 ### Railway (Worker)
 
-1. Connect GitHub repo to Railway
-2. Set environment variables in Railway dashboard
-3. Deploy automatically on push to `main`
+1. **Connect GitHub repo:**
+   - Go to https://railway.app
+   - Create new project → Deploy from GitHub repo
+   - Select your repository
+   - Railway will auto-detect the monorepo structure
+
+2. **Set environment variables in Railway dashboard:**
+   
+   **Required:**
+   ```
+   SUPABASE_DB_URL=postgresql://postgres.<project-ref>.supabase.co:5432/postgres?sslmode=require
+   ```
+   
+   **Optional (for ETL functionality):**
+   ```
+   META_ACCESS_TOKEN=<your-meta-token>
+   META_AD_ACCOUNT_ID=act_<account-id>
+   GA4_CREDENTIALS_JSON='<service-account-json>'
+   GA4_PROPERTY_ID=<property-id>
+   KLAVIYO_API_KEY=<your-key>
+   ```
+
+3. **Deploy automatically on push to `main`**
+   - Railway uses `pnpm` for this project (auto-detected via `pnpm-workspace.yaml`)
+   - Build command: `pnpm install && pnpm --filter @dashboard/config build && pnpm --filter @dashboard/worker build`
+   - Start command: `cd apps/worker && pnpm start`
 
 ### Vercel (Frontend)
 
@@ -139,4 +162,23 @@ supabase db push
 - Verify JWT verification is working
 - Check function logs in Supabase dashboard
 - Ensure shop access validation logic is implemented
+
+### Railway deployment failures
+
+**Build errors:**
+- Ensure `pnpm-workspace.yaml` exists in root directory
+- Verify `packages/config` has `composite: true` in tsconfig.json
+- Check that all workspace dependencies are properly installed
+- View build logs: `railway logs` or Railway dashboard
+
+**Runtime errors:**
+- Verify `SUPABASE_DB_URL` is set correctly with TLS (`?sslmode=require`)
+- Check that worker can connect to database (view logs in Railway dashboard)
+- Ensure `dist/index.js` exists after build (check build output)
+- Verify all required environment variables are set
+
+**Monorepo issues:**
+- Railway uses pnpm for this project (detected via `pnpm-workspace.yaml`)
+- Build order: root install → config build → worker build
+- Ensure workspace packages are built before dependent packages
 

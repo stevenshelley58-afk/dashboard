@@ -84,7 +84,7 @@ export class MetaClient extends ApiClient {
     let url: string | undefined = this.buildInsightsUrl(startDate, endDate);
 
     while (url) {
-      const response = await this.http.get<MetaInsightsResponse>(url, {
+      const response: MetaInsightsResponse = await this.http.get<MetaInsightsResponse>(url, {
         rateLimitKey: 'meta',
       });
 

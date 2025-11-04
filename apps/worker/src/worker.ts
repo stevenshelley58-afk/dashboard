@@ -81,7 +81,7 @@ export class Worker {
     }
   }
 
-  private async executeJob(job: ETLRun, client: any): Promise<void> {
+  private async executeJob(job: ETLRunRecord, client: any): Promise<void> {
     let recordsSynced = 0;
     let error: ErrorPayload | null = null;
 

@@ -141,7 +141,7 @@ export class GA4Client {
         throw new Error(`GA4_API_ERROR: HTTP ${response.status}: ${errorText}`);
       }
 
-      const data: GA4ReportResponse = await response.json();
+      const data = (await response.json()) as GA4ReportResponse;
 
       if (data.rows) {
         allRows.push(...data.rows);
