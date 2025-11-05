@@ -38,12 +38,23 @@ export function SyncTrigger() {
     setResult(null);
 
     try {
-      // Convert enum values to strings explicitly
+      // Ensure values are strings (handle enum conversion)
       const requestBody = {
         shop_id: trimmedShopId,
-        platform: String(platform),
-        job_type: String(jobType),
+        platform: typeof platform === 'string' ? platform : String(platform),
+        job_type: typeof jobType === 'string' ? jobType : String(jobType),
       };
+
+      // Double-check values before sending
+      if (!requestBody.shop_id || !requestBody.platform || !requestBody.job_type) {
+        console.error('Request body validation failed:', requestBody);
+        setResult({
+          success: false,
+          message: `Missing values: shop_id=${!!requestBody.shop_id}, platform=${!!requestBody.platform}, job_type=${!!requestBody.job_type}`,
+        });
+        setLoading(false);
+        return;
+      }
 
       console.log('Sending sync request:', {
         requestBody,
@@ -121,14 +132,18 @@ export function SyncTrigger() {
           <select
             id="platform"
             value={platform}
-            onChange={(e) => setPlatform(e.target.value as Platform)}
+            onChange={(e) => {
+              const val = e.target.value as Platform;
+              console.log('Platform changed:', { val, enumValue: Platform[val as keyof typeof Platform] });
+              setPlatform(val);
+            }}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value={Platform.SHOPIFY}>Shopify</option>
-            <option value={Platform.META}>Meta</option>
-            <option value={Platform.GA4}>GA4</option>
-            <option value={Platform.KLAVIYO}>Klaviyo</option>
+            <option value="SHOPIFY">Shopify</option>
+            <option value="META">Meta</option>
+            <option value="GA4">GA4</option>
+            <option value="KLAVIYO">Klaviyo</option>
           </select>
         </div>
 
@@ -139,12 +154,16 @@ export function SyncTrigger() {
           <select
             id="job_type"
             value={jobType}
-            onChange={(e) => setJobType(e.target.value as JobType)}
+            onChange={(e) => {
+              const val = e.target.value as JobType;
+              console.log('Job type changed:', { val, enumValue: JobType[val as keyof typeof JobType] });
+              setJobType(val);
+            }}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value={JobType.INCREMENTAL}>Incremental (sync since last success)</option>
-            <option value={JobType.HISTORICAL}>Historical (full backfill)</option>
+            <option value="INCREMENTAL">Incremental (sync since last success)</option>
+            <option value="HISTORICAL">Historical (full backfill)</option>
           </select>
         </div>
 
