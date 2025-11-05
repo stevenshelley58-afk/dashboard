@@ -1,37 +1,45 @@
 /** Dashboard home page */
-import { createClient } from '@/lib/supabase/server';
+import { SyncStatusCard } from '@/components/SyncStatusCard';
+import { RevenueChart } from '@/components/RevenueChart';
+import { MarketingMetrics } from '@/components/MarketingMetrics';
+import { SyncTrigger } from '@/components/SyncTrigger';
 
 export default async function HomePage() {
-  const supabase = createClient();
-  
-  // Fetch sync status
-  const { data: syncStatus } = await supabase
-    .from('sync_status')
-    .select('*')
-    .limit(10)
-    .order('created_at', { ascending: false });
-
   return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
-      
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Recent Syncs</h2>
-        {syncStatus && syncStatus.length > 0 ? (
-          <div className="space-y-2">
-            {syncStatus.map((sync) => (
-              <div key={sync.run_id} className="border p-4 rounded">
-                <p>Shop: {sync.shop_id}</p>
-                <p>Platform: {sync.platform}</p>
-                <p>Status: {sync.status}</p>
-                <p>Records: {sync.records_synced || 0}</p>
-              </div>
-            ))}
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Data Pipeline Dashboard</h1>
+          <p className="text-gray-600">Monitor and manage your ETL syncs, revenue, and marketing metrics</p>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Left Column - Sync Trigger */}
+          <div className="lg:col-span-1">
+            <SyncTrigger />
           </div>
-        ) : (
-          <p>No syncs yet</p>
-        )}
-      </section>
+
+          {/* Right Column - Sync Status */}
+          <div className="lg:col-span-2">
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h2 className="text-xl font-semibold mb-4">Recent Syncs</h2>
+              <SyncStatusCard />
+            </div>
+          </div>
+        </div>
+
+        {/* Revenue Section */}
+        <div className="mb-8">
+          <RevenueChart days={30} />
+        </div>
+
+        {/* Marketing Metrics Section */}
+        <div className="mb-8">
+          <MarketingMetrics days={30} />
+        </div>
+      </div>
     </main>
   );
 }

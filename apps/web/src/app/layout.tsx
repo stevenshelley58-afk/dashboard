@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Data Pipeline',
-  description: 'ELT data pipeline dashboard',
+  description: 'ELT data pipeline dashboard for monitoring syncs, revenue, and marketing metrics',
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
