@@ -6,6 +6,8 @@ import { SyncTrigger } from '@/components/SyncTrigger';
 import { Header } from '@/components/Header';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
+export const dynamic = 'force-dynamic'; // Force dynamic rendering since we use Supabase
+
 export default async function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
