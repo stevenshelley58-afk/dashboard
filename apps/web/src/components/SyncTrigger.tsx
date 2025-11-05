@@ -2,13 +2,12 @@
 
 /** Sync trigger component - client-side form */
 import { useState } from 'react';
-import { Platform, JobType } from '@/lib/config';
 import { ShopSelector } from './ShopSelector';
 
 export function SyncTrigger() {
   const [shopId, setShopId] = useState('');
-  const [platform, setPlatform] = useState<Platform>(Platform.SHOPIFY);
-  const [jobType, setJobType] = useState<JobType>(JobType.INCREMENTAL);
+  const [platform, setPlatform] = useState<string>('SHOPIFY'); // Use string literal instead of enum
+  const [jobType, setJobType] = useState<string>('INCREMENTAL'); // Use string literal instead of enum
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -38,11 +37,11 @@ export function SyncTrigger() {
     setResult(null);
 
     try {
-      // Ensure values are strings (handle enum conversion)
+      // Build request body - all values should already be strings
       const requestBody = {
         shop_id: trimmedShopId,
-        platform: typeof platform === 'string' ? platform : String(platform),
-        job_type: typeof jobType === 'string' ? jobType : String(jobType),
+        platform: platform, // Already a string
+        job_type: jobType, // Already a string
       };
 
       // Double-check values before sending
@@ -133,8 +132,8 @@ export function SyncTrigger() {
             id="platform"
             value={platform}
             onChange={(e) => {
-              const val = e.target.value as Platform;
-              console.log('Platform changed:', { val, enumValue: Platform[val as keyof typeof Platform] });
+              const val = e.target.value;
+              console.log('Platform changed:', { val, selectedValue: val });
               setPlatform(val);
             }}
             required
@@ -155,8 +154,8 @@ export function SyncTrigger() {
             id="job_type"
             value={jobType}
             onChange={(e) => {
-              const val = e.target.value as JobType;
-              console.log('Job type changed:', { val, enumValue: JobType[val as keyof typeof JobType] });
+              const val = e.target.value;
+              console.log('Job type changed:', { val, selectedValue: val });
               setJobType(val);
             }}
             required

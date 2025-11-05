@@ -2,11 +2,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic'; // Force dynamic rendering since we use cookies
+
 export async function GET() {
   try {
     const supabase = createClient();
     
-    const results: Record<string, any> = {};
+    const results: Record<string, number> = {};
 
     // Check shops
     const { count: shopsCount } = await supabase
