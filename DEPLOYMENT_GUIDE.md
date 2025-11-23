@@ -78,7 +78,7 @@
    railway variables set DATABASE_URL="postgresql://postgres:[PASSWORD]@db.cljpiaygjtspppsvntnu.supabase.co:5432/postgres"
    railway variables set SHOPIFY_API_KEY="b2e5f947f63da4b978ff0cea2765d91d"
    railway variables set SHOPIFY_API_SECRET="[YOUR-SHOPIFY-API-SECRET]"
-   railway variables set SHOPIFY_API_VERSION="2024-10"
+   railway variables set SHOPIFY_API_VERSION="2025-01"
    railway variables set JOB_POLL_INTERVAL_MS="5000"
    ```
 

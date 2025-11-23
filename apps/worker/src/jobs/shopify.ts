@@ -5,7 +5,7 @@ import type { SyncRunRecord } from "../types/sync-run.js";
 import { sleep } from "../utils/time.js";
 import { rebuildDailySummary } from "./daily-summary.js";
 
-const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION ?? "2024-10";
+const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION ?? "2025-01";
 const SHOPIFY_PAGE_SIZE = 100;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const CURSOR_KEY = "last_synced_order_updated_at";

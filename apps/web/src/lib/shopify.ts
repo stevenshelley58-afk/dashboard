@@ -49,7 +49,7 @@ function getScopes(): string {
 }
 
 function getApiVersion(): string {
-  return process.env.SHOPIFY_API_VERSION ?? "2024-10";
+  return process.env.SHOPIFY_API_VERSION ?? "2025-01";
 }
 
 function createHmac(value: string, secret: string, encoding: BinaryToTextEncoding): string {

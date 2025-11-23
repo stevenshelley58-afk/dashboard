@@ -2,7 +2,7 @@
 # It is used to manage your app's configuration
 client_id = "b2e5f947f63da4b978ff0cea2765d91d"
 name = "dashboard-1"
-application_url = "http://localhost:3000"
+application_url = "https://dashboard-six-roan-23.vercel.app"
 embedded = false
 
 [access_scopes]
@@ -11,11 +11,11 @@ scopes = "read_orders,read_products,read_customers"
 
 [auth]
 redirect_urls = [
-  "http://localhost:3000/api/shopify/callback"
+  "https://dashboard-six-roan-23.vercel.app/api/shopify/callback"
 ]
 
 [webhooks]
-api_version = "2024-10"
+api_version = "2025-01"
 
 [pos]
 embedded = false

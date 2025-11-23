@@ -1,36 +1,17 @@
 {
   "framework": "nextjs",
-  "root": "apps/web",
   "buildCommand": "cd ../.. && npm run build:web",
   "installCommand": "cd ../.. && npm install",
   "devCommand": "npm run dev",
-  "outputDirectory": ".next",
+  "outputDirectory": "apps/web/.next",
   "env": {
     "NODE_ENV": "production"
   },
-  "build": {
-    "env": {
-      "DATABASE_URL": "@database_url",
-      "JWT_SECRET": "@jwt_secret",
-      "SHOPIFY_API_KEY": "@shopify_api_key",
-      "SHOPIFY_API_SECRET": "@shopify_api_secret",
-      "SHOPIFY_APP_URL": "@shopify_app_url",
-      "SHOPIFY_STATE_SECRET": "@shopify_state_secret",
-      "LOCAL_DEV_ACCOUNT_ID": "@local_dev_account_id",
-      "META_JOBS_ENABLED": "@meta_jobs_enabled",
-      "META_CRON_SECRET": "@meta_cron_secret"
-    }
-  },
   "regions": ["iad1"],
-  "functions": {
-    "apps/web/src/app/api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
   "crons": [
     {
       "path": "/api/scheduler/meta",
-      "schedule": "0 */1 * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
