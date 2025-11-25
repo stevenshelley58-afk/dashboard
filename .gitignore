@@ -18,3 +18,5 @@ install-error.json
 # OS / editor junk
 .DS_Store
 Thumbs.db
+
+.vercel

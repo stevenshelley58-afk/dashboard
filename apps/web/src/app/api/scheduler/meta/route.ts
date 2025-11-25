@@ -69,7 +69,7 @@ async function enqueueMetaFreshRuns(): Promise<number> {
   return result.rows[0]?.inserted_rows ?? 0;
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+async function handleSchedulerRequest(request: NextRequest): Promise<NextResponse> {
   if (!isAuthorized(request)) {
     return NextResponse.json(
       { error: "Unauthorized scheduler invocation." },
@@ -94,6 +94,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     },
     { status: 202, headers: { "Cache-Control": "no-store" } }
   );
+}
+
+// Vercel cron jobs use GET requests by default
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  return handleSchedulerRequest(request);
+}
+
+// Keep POST for manual triggers or external schedulers
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  return handleSchedulerRequest(request);
 }
 
 

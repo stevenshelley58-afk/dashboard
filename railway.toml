@@ -1,14 +1,13 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd apps/worker && npm install"
+buildCommand = "cd apps/worker && npm install && npm run build"
 
 [deploy]
 startCommand = "cd apps/worker && npm run start"
 restartPolicyType = "on-failure"
 restartPolicyMaxRetries = 3
-healthcheckPath = "/"
-healthcheckTimeout = 30
+healthcheckPath = "/health"
+healthcheckTimeout = 60
 
 [nixpacks]
 pkgs = ["nodejs-18_x"]
-cmds = ["npm install --prefix apps/worker"]

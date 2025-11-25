@@ -33,9 +33,8 @@ function getPool(): Pool {
     idleTimeoutMillis: 10_000,
   });
 
-  if (process.env.NODE_ENV !== 'production') {
-    globalForDb._webDbPool = pool;
-  }
+  // Always cache pool to prevent connection exhaustion in serverless environments
+  globalForDb._webDbPool = pool;
 
   return pool;
 }
