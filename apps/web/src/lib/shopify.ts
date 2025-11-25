@@ -29,7 +29,24 @@ function requiredEnv(name: string): string {
 }
 
 function getAppBaseUrl(): string {
-  return requiredEnv("SHOPIFY_APP_URL");
+  // Check explicit config first, then Vercel's automatic URL
+  if (process.env.SHOPIFY_APP_URL) {
+    return process.env.SHOPIFY_APP_URL;
+  }
+  
+  // Vercel provides VERCEL_URL automatically (without protocol)
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  // Fallback for local dev
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  
+  throw new Error(
+    "App URL not configured. Set SHOPIFY_APP_URL or deploy to Vercel."
+  );
 }
 
 function getApiKey(): string {
