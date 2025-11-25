@@ -197,6 +197,42 @@ function DualLineChart({ data }: { data: TimeseriesPoint[] }) {
   );
 }
 
+function periodToDateRange(period: PeriodPreset): { from: string; to: string } {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  
+  const to = new Date(today);
+  let from = new Date(today);
+  
+  switch (period) {
+    case "today":
+      from = new Date(today);
+      break;
+    case "yesterday":
+      from = new Date(today);
+      from.setUTCDate(from.getUTCDate() - 1);
+      to.setUTCDate(to.getUTCDate() - 1);
+      break;
+    case "last_7":
+      from.setUTCDate(from.getUTCDate() - 6);
+      break;
+    case "this_week":
+      // Monday to today
+      const dayOfWeek = today.getUTCDay();
+      const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      from.setUTCDate(from.getUTCDate() - diff);
+      break;
+    case "last_30":
+      from.setUTCDate(from.getUTCDate() - 29);
+      break;
+  }
+  
+  return {
+    from: from.toISOString().slice(0, 10),
+    to: to.toISOString().slice(0, 10),
+  };
+}
+
 export default function ShopifyDashboardClient() {
   const [period, setPeriod] = useState<PeriodPreset>("yesterday");
   const [data, setData] = useState<DashboardData | null>(null);
@@ -210,7 +246,8 @@ export default function ShopifyDashboardClient() {
 
     async function fetchData() {
       try {
-        const res = await fetch(`/api/dashboard/shopify?period=${period}`, {
+        const { from, to } = periodToDateRange(period);
+        const res = await fetch(`/api/dashboard/shopify?from=${from}&to=${to}`, {
           signal: controller.signal,
         });
 
@@ -220,17 +257,27 @@ export default function ShopifyDashboardClient() {
         }
 
         const json = await res.json();
+        const summary = json.summary ?? {};
+        const timeseries = json.timeseries ?? [];
+        
+        // Convert timeseries to chart format
+        const chartData = timeseries.map((point: any) => ({
+          date: point.date,
+          revenue: point.revenue_net ?? 0,
+          orders: point.orders ?? 0,
+        }));
+        
         setData({
           metrics: {
-            total_sales: json.metrics?.total_sales ?? 0,
-            total_orders: json.metrics?.total_orders ?? 0,
-            aov: json.metrics?.aov ?? 0,
-            conversion_rate: json.metrics?.conversion_rate ?? 0,
+            total_sales: summary.revenue_net ?? 0,
+            total_orders: summary.orders ?? 0,
+            aov: summary.aov ?? 0,
+            conversion_rate: 0, // Not available in current API
           },
-          timeseries: json.timeseries ?? [],
-          topProducts: json.topProducts ?? [],
-          currency: json.currency ?? "AUD",
-          hasData: json.hasData ?? false,
+          timeseries: chartData,
+          topProducts: [], // Not available in current API
+          currency: json.shop?.currency ?? "AUD",
+          hasData: json.meta?.hasData ?? false,
         });
       } catch (err) {
         if (!controller.signal.aborted) {
