@@ -31,6 +31,19 @@ const MetaIcon = () => (
   </svg>
 );
 
+const PlannerIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 11l3 3L22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
+);
+
+const ChatIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
 const SettingsIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3" />
@@ -42,6 +55,8 @@ const navItems: NavItem[] = [
   { href: "/dashboard/home", label: "Home", icon: <HomeIcon /> },
   { href: "/dashboard/shopify", label: "Shopify", icon: <ShopifyIcon /> },
   { href: "/dashboard/meta", label: "Meta", icon: <MetaIcon /> },
+  { href: "/planner", label: "Planner", icon: <PlannerIcon /> },
+  { href: "/chat", label: "Chat", icon: <ChatIcon /> },
   { href: "/settings", label: "Settings", icon: <SettingsIcon /> },
 ];
 
